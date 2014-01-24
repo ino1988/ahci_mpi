@@ -20,6 +20,7 @@ module v5_gtp_top #
    gtx_txdata0, gtx_txdatak0, gtx_rxdata0, gtx_rxdatak0, txdatak_pop1,
    rxdata_fis1, rxcharisk1, link_up1, CommInit1, gtx_txdata1,
    gtx_txdatak1, gtx_rxdata1, gtx_rxdatak1, oob2dbg0, oob2dbg1,
+   gtp_dbg, oob_dbg,
    // Inputs
    GTXRESET_IN, RXN0_IN, RXP0_IN, RXN1_IN, RXP1_IN, refclk,
    dcm_locked, txusrclk0, txusrclk20, txdata_fis0, tx_charisk_fis0,
@@ -86,6 +87,9 @@ module v5_gtp_top #
 
    output [127:0]  oob2dbg0;
    output [127:0]  oob2dbg1;
+   output [127:0]  gtp_dbg;
+   output [127:0]  oob_dbg;
+      
 //************************** Register Declarations ****************************
 
     reg     [84:0]  ila_in0_r;
@@ -387,7 +391,8 @@ module v5_gtp_top #
         .TILE0_TXCOMSTART0_IN           (tile0_txcomstart0_i),
         .TILE0_TXCOMSTART1_IN           (tile0_txcomstart1_i),
         .TILE0_TXCOMTYPE0_IN            (tile0_txcomtype0_i),
-        .TILE0_TXCOMTYPE1_IN            (tile0_txcomtype1_i)
+        .TILE0_TXCOMTYPE1_IN            (tile0_txcomtype1_i),
+     .gtp_dbg (gtp_dbg)
     );
 generate if (C_BYPASS_TXBUF == 1) 
 begin
@@ -520,6 +525,7 @@ endgenerate
       .txdatak				(tile0_txcharisk0_i),
       .txdatak_pop                      (txdatak_pop0),
       .trig_o				(trig0),
+      .oob_dbg                          (oob_dbg),
       // Inouts
       .CONTROL				(CONTROL0[35:0]),
       // Inputs

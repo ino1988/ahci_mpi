@@ -153,8 +153,13 @@ module GTP_TX_SYNC
         else
             sync_counter_r <= `DLY  sync_counter_r + 1'b1;
     end
-    assign sync_count_complete_r = sync_counter_r[12];
-
+   
+`ifdef SIM
+   assign sync_count_complete_r = sync_counter_r[4];
+`else
+   assign sync_count_complete_r = sync_counter_r[12];
+`endif
+   
     //_______________ Assign the phase align ports into the GTP _______________
 
     assign TXENPMAPHASEALIGN = !begin_r;

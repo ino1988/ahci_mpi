@@ -56,23 +56,24 @@ module sata(/*AUTOARG*/
    PIM_RdModWr, PIM_WrFIFO_Data, PIM_WrFIFO_BE, PIM_WrFIFO_Push,
    PIM_RdFIFO_Pop, PIM_WrFIFO_Flush, PIM_RdFIFO_Flush,
    // Inputs
-   txdatak_pop3, txdatak_pop2, txdatak_pop1, txdatak_pop0, rxdatak3,
-   rxdatak2, rxdatak1, rxdatak0, rxdata3, rxdata2, rxdata1, rxdata0,
-   plllock3, plllock2, plllock1, plllock0, phyclk3, phyclk2, phyclk1,
-   phyclk0, oob2dbg3, oob2dbg2, oob2dbg1, oob2dbg0, linkup3, linkup2,
-   linkup1, linkup0, ilmb_BRAM_WEN, ilmb_BRAM_Rst, ilmb_BRAM_EN,
-   ilmb_BRAM_Dout, ilmb_BRAM_Clk, ilmb_BRAM_Addr, gtx_txdatak3,
-   gtx_txdatak2, gtx_txdatak1, gtx_txdatak0, gtx_txdata3, gtx_txdata2,
-   gtx_txdata1, gtx_txdata0, gtx_rxdatak3, gtx_rxdatak2, gtx_rxdatak1,
-   gtx_rxdatak0, gtx_rxdata3, gtx_rxdata2, gtx_rxdata1, gtx_rxdata0,
-   dlmb_BRAM_WEN, dlmb_BRAM_Rst, dlmb_BRAM_EN, dlmb_BRAM_Dout,
-   dlmb_BRAM_Clk, dlmb_BRAM_Addr, DBG_UPDATE, DBG_TDI, DBG_SHIFT,
-   DBG_RST, DBG_REG_EN, DBG_CLK, DBG_CAPTURE, CommInit3, CommInit2,
-   CommInit1, CommInit0, M_Clk, M_Reset, M_Error, DCR_Clk, DCR_Rst,
-   DCR_Read, DCR_Write, DCR_ABus, DCR_Sl_DBus, MPMC_Clk, PIM_AddrAck,
-   PIM_RdFIFO_Data, PIM_RdFIFO_RdWdAddr, PIM_WrFIFO_Empty,
-   PIM_WrFIFO_AlmostFull, PIM_RdFIFO_Empty, PIM_RdFIFO_Latency,
-   PIM_InitDone
+   txusrclk20, txdatak_pop3, txdatak_pop2, txdatak_pop1, txdatak_pop0,
+   rxdatak3, rxdatak2, rxdatak1, rxdatak0, rxdata3, rxdata2, rxdata1,
+   rxdata0, plllock3, plllock2, plllock1, plllock0, phyclk3, phyclk2,
+   phyclk1, phyclk0, oob2dbg3, oob2dbg2, oob2dbg1, oob2dbg0, linkup3,
+   linkup2, linkup1, linkup0, ilmb_BRAM_WEN, ilmb_BRAM_Rst,
+   ilmb_BRAM_EN, ilmb_BRAM_Dout, ilmb_BRAM_Clk, ilmb_BRAM_Addr,
+   gtx_txdatak3, gtx_txdatak2, gtx_txdatak1, gtx_txdatak0,
+   gtx_txdata3, gtx_txdata2, gtx_txdata1, gtx_txdata0, gtx_rxdatak3,
+   gtx_rxdatak2, gtx_rxdatak1, gtx_rxdatak0, gtx_rxdata3, gtx_rxdata2,
+   gtx_rxdata1, gtx_rxdata0, dlmb_BRAM_WEN, dlmb_BRAM_Rst,
+   dlmb_BRAM_EN, dlmb_BRAM_Dout, dlmb_BRAM_Clk, dlmb_BRAM_Addr,
+   DBG_UPDATE, DBG_TDI, DBG_SHIFT, DBG_RST, DBG_REG_EN, DBG_CLK,
+   DBG_CAPTURE, CommInit3, CommInit2, CommInit1, CommInit0, M_Clk,
+   M_Reset, M_Error, DCR_Clk, DCR_Rst, DCR_Read, DCR_Write, DCR_ABus,
+   DCR_Sl_DBus, MPMC_Clk, PIM_AddrAck, PIM_RdFIFO_Data,
+   PIM_RdFIFO_RdWdAddr, PIM_WrFIFO_Empty, PIM_WrFIFO_AlmostFull,
+   PIM_RdFIFO_Empty, PIM_RdFIFO_Latency, PIM_InitDone, gtp_dbg,
+   oob_dbg
    );
    parameter C_PORT = 4;
    parameter C_FAMILY = "virtex5";
@@ -175,7 +176,23 @@ module sata(/*AUTOARG*/
    output 	 PIM_RdFIFO_Flush;
    input [1:0] 	 PIM_RdFIFO_Latency;
    input 	 PIM_InitDone;
+
+   input [127:0] gtp_dbg;
+   input [127:0] oob_dbg;
    
+   wire [127:0]  oob_dbg0;		// To dma0 of sata_dma.v
+   wire [127:0]  oob_dbg1;		// To dma1 of sata_dma.v
+   wire [127:0]  oob_dbg2;		// To dma2 of sata_dma.v
+   wire [127:0]  oob_dbg3;		// To dma3 of sata_dma.v
+   
+   wire [127:0]  gtp_dbg0;		// To dma0 of sata_dma.v
+   wire [127:0]  gtp_dbg1;		// To dma1 of sata_dma.v
+   wire [127:0]  gtp_dbg2;		// To dma2 of sata_dma.v
+   wire [127:0]  gtp_dbg3;		// To dma3 of sata_dma.v
+
+   assign oob_dbg0 = oob_dbg;
+   assign gtp_dbg0 = gtp_dbg;
+        
    /*AUTOINPUT*/
    // Beginning of automatic inputs (from unused autoinst inputs)
    input		CommInit0;		// To dma0 of sata_dma.v
@@ -245,6 +262,7 @@ module sata(/*AUTOARG*/
    input		txdatak_pop1;		// To dma1 of sata_dma.v
    input		txdatak_pop2;		// To dma2 of sata_dma.v
    input		txdatak_pop3;		// To dma3 of sata_dma.v
+   input		txusrclk20;		// To dma0 of sata_dma.v, ...
    // End of automatics
    /*AUTOOUTPUT*/
    // Beginning of automatic outputs (from unused autoinst outputs)
@@ -473,6 +491,7 @@ module sata(/*AUTOARG*/
     (
     .sys_clk    (sys_clk),
     .sys_rst    (sys_rst),
+    .txusrclk20 (txusrclk20),
     .write      (io_write@[]),
     .writedata  (io_writedata@[]),
     .readdata   (io_readdata@[]),
@@ -526,17 +545,20 @@ module sata(/*AUTOARG*/
 		       .Trace_FW	(Trace_FW0[127:0]),	 // Templated
 		       .address		(io_address0[5:0]),	 // Templated
 		       .err_req		(err_req0[7:0]),	 // Templated
+		       .gtp_dbg		(gtp_dbg0[127:0]),	 // Templated
 		       .gtx_rxdata	(gtx_rxdata0[31:0]),	 // Templated
 		       .gtx_rxdatak	(gtx_rxdatak0[3:0]),	 // Templated
 		       .gtx_txdata	(gtx_txdata0[31:0]),	 // Templated
 		       .gtx_txdatak	(gtx_txdatak0[3:0]),	 // Templated
 		       .linkup		(linkup0),		 // Templated
 		       .oob2dbg		(oob2dbg0[127:0]),	 // Templated
+		       .oob_dbg		(oob_dbg0[127:0]),	 // Templated
 		       .phyclk		(phyclk0),		 // Templated
 		       .plllock		(plllock0),		 // Templated
 		       .rxdata		(rxdata0[31:0]),	 // Templated
 		       .rxdatak		(rxdatak0),		 // Templated
 		       .txdatak_pop	(txdatak_pop0),		 // Templated
+		       .txusrclk20	(txusrclk20),		 // Templated
 		       .write		(io_write0),		 // Templated
 		       .writedata	(io_writedata0[31:0]));	 // Templated
      end
@@ -585,17 +607,20 @@ module sata(/*AUTOARG*/
 		       .Trace_FW	(Trace_FW1[127:0]),	 // Templated
 		       .address		(io_address1[5:0]),	 // Templated
 		       .err_req		(err_req1[7:0]),	 // Templated
+		       .gtp_dbg		(gtp_dbg1[127:0]),	 // Templated
 		       .gtx_rxdata	(gtx_rxdata1[31:0]),	 // Templated
 		       .gtx_rxdatak	(gtx_rxdatak1[3:0]),	 // Templated
 		       .gtx_txdata	(gtx_txdata1[31:0]),	 // Templated
 		       .gtx_txdatak	(gtx_txdatak1[3:0]),	 // Templated
 		       .linkup		(linkup1),		 // Templated
 		       .oob2dbg		(oob2dbg1[127:0]),	 // Templated
+		       .oob_dbg		(oob_dbg1[127:0]),	 // Templated
 		       .phyclk		(phyclk1),		 // Templated
 		       .plllock		(plllock1),		 // Templated
 		       .rxdata		(rxdata1[31:0]),	 // Templated
 		       .rxdatak		(rxdatak1),		 // Templated
 		       .txdatak_pop	(txdatak_pop1),		 // Templated
+		       .txusrclk20	(txusrclk20),		 // Templated
 		       .write		(io_write1),		 // Templated
 		       .writedata	(io_writedata1[31:0]));	 // Templated
      end // block: aport1
@@ -651,17 +676,20 @@ module sata(/*AUTOARG*/
 		       .Trace_FW	(Trace_FW2[127:0]),	 // Templated
 		       .address		(io_address2[5:0]),	 // Templated
 		       .err_req		(err_req2[7:0]),	 // Templated
+		       .gtp_dbg		(gtp_dbg2[127:0]),	 // Templated
 		       .gtx_rxdata	(gtx_rxdata2[31:0]),	 // Templated
 		       .gtx_rxdatak	(gtx_rxdatak2[3:0]),	 // Templated
 		       .gtx_txdata	(gtx_txdata2[31:0]),	 // Templated
 		       .gtx_txdatak	(gtx_txdatak2[3:0]),	 // Templated
 		       .linkup		(linkup2),		 // Templated
 		       .oob2dbg		(oob2dbg2[127:0]),	 // Templated
+		       .oob_dbg		(oob_dbg2[127:0]),	 // Templated
 		       .phyclk		(phyclk2),		 // Templated
 		       .plllock		(plllock2),		 // Templated
 		       .rxdata		(rxdata2[31:0]),	 // Templated
 		       .rxdatak		(rxdatak2),		 // Templated
 		       .txdatak_pop	(txdatak_pop2),		 // Templated
+		       .txusrclk20	(txusrclk20),		 // Templated
 		       .write		(io_write2),		 // Templated
 		       .writedata	(io_writedata2[31:0]));	 // Templated
      end // block: aport2
@@ -717,17 +745,20 @@ module sata(/*AUTOARG*/
 		       .Trace_FW	(Trace_FW3[127:0]),	 // Templated
 		       .address		(io_address3[5:0]),	 // Templated
 		       .err_req		(err_req3[7:0]),	 // Templated
+		       .gtp_dbg		(gtp_dbg3[127:0]),	 // Templated
 		       .gtx_rxdata	(gtx_rxdata3[31:0]),	 // Templated
 		       .gtx_rxdatak	(gtx_rxdatak3[3:0]),	 // Templated
 		       .gtx_txdata	(gtx_txdata3[31:0]),	 // Templated
 		       .gtx_txdatak	(gtx_txdatak3[3:0]),	 // Templated
 		       .linkup		(linkup3),		 // Templated
 		       .oob2dbg		(oob2dbg3[127:0]),	 // Templated
+		       .oob_dbg		(oob_dbg3[127:0]),	 // Templated
 		       .phyclk		(phyclk3),		 // Templated
 		       .plllock		(plllock3),		 // Templated
 		       .rxdata		(rxdata3[31:0]),	 // Templated
 		       .rxdatak		(rxdatak3),		 // Templated
 		       .txdatak_pop	(txdatak_pop3),		 // Templated
+		       .txusrclk20	(txusrclk20),		 // Templated
 		       .write		(io_write3),		 // Templated
 		       .writedata	(io_writedata3[31:0]));	 // Templated
      end // block: aport3

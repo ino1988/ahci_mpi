@@ -163,8 +163,8 @@ module V5_GTPWIZARD_V2_1 #
     TILE0_TXCOMSTART0_IN,
     TILE0_TXCOMSTART1_IN,
     TILE0_TXCOMTYPE0_IN,
-    TILE0_TXCOMTYPE1_IN
-
+    TILE0_TXCOMTYPE1_IN,
+ gtp_dbg
 
 );
 
@@ -259,8 +259,8 @@ module V5_GTPWIZARD_V2_1 #
     input           TILE0_TXCOMSTART1_IN;
     input           TILE0_TXCOMTYPE0_IN;
     input           TILE0_TXCOMTYPE1_IN;
-
-
+   output [127:0]   gtp_dbg;
+   
 
 
 
@@ -388,8 +388,8 @@ module V5_GTPWIZARD_V2_1 #
         .TXCOMSTART0_IN                 (TILE0_TXCOMSTART0_IN),
         .TXCOMSTART1_IN                 (TILE0_TXCOMSTART1_IN),
         .TXCOMTYPE0_IN                  (TILE0_TXCOMTYPE0_IN),
-        .TXCOMTYPE1_IN                  (TILE0_TXCOMTYPE1_IN)
-
+        .TXCOMTYPE1_IN                  (TILE0_TXCOMTYPE1_IN),
+     .gtp_dbg                           (gtp_dbg)
     );
 
     

@@ -51,12 +51,12 @@ module sata_dma (/*AUTOARG*/
    PIM_Size, PIM_RdModWr, PIM_RdFIFO_Pop, PIM_RdFIFO_Flush, PIM_RNW,
    PIM_AddrReq, PIM_Addr, gtx_tune, phyreset, sata_ledA, sata_ledB,
    // Inputs
-   writedata, write, txdatak_pop, rxdatak, rxdata, plllock, phyclk,
-   oob2dbg, linkup, gtx_txdatak, gtx_txdata, gtx_rxdatak, gtx_rxdata,
-   err_req, address, Trace_FW, PIM_WrFIFO_Empty,
-   PIM_WrFIFO_AlmostFull, PIM_RdFIFO_RdWdAddr, PIM_RdFIFO_Latency,
-   PIM_RdFIFO_Empty, PIM_RdFIFO_Data, PIM_InitDone, PIM_AddrAck,
-   MPMC_Clk, CommInit, sys_clk, sys_rst
+   writedata, write, txusrclk20, txdatak_pop, rxdatak, rxdata,
+   plllock, phyclk, oob_dbg, oob2dbg, linkup, gtx_txdatak, gtx_txdata,
+   gtx_rxdatak, gtx_rxdata, gtp_dbg, err_req, address, Trace_FW,
+   PIM_WrFIFO_Empty, PIM_WrFIFO_AlmostFull, PIM_RdFIFO_RdWdAddr,
+   PIM_RdFIFO_Latency, PIM_RdFIFO_Empty, PIM_RdFIFO_Data,
+   PIM_InitDone, PIM_AddrAck, MPMC_Clk, CommInit, sys_clk, sys_rst
    );
    parameter C_FAMILY = "virtex5";
    parameter C_PORT = 0;
@@ -83,17 +83,20 @@ module sata_dma (/*AUTOARG*/
    input [127:0]	Trace_FW;		// To dcr_if of dcr_if.v
    input [5:0]		address;		// To dcr_if of dcr_if.v
    input [7:0]		err_req;		// To sata_link of sata_link.v
+   input [127:0]	gtp_dbg;		// To dcr_if of dcr_if.v
    input [31:0]		gtx_rxdata;		// To sata_link of sata_link.v
    input [3:0]		gtx_rxdatak;		// To sata_link of sata_link.v
    input [31:0]		gtx_txdata;		// To sata_link of sata_link.v
    input [3:0]		gtx_txdatak;		// To sata_link of sata_link.v
    input		linkup;			// To dcr_if of dcr_if.v, ...
    input [127:0]	oob2dbg;		// To dcr_if of dcr_if.v
+   input [127:0]	oob_dbg;		// To dcr_if of dcr_if.v
    input		phyclk;			// To txll of txll.v, ...
    input		plllock;		// To dcr_if of dcr_if.v, ...
    input [31:0]		rxdata;			// To sata_link of sata_link.v
    input		rxdatak;		// To sata_link of sata_link.v
    input		txdatak_pop;		// To sata_link of sata_link.v
+   input		txusrclk20;		// To dcr_if of dcr_if.v
    input		write;			// To dcr_if of dcr_if.v
    input [31:0]		writedata;		// To dcr_if of dcr_if.v
    // End of automatics
@@ -194,54 +197,54 @@ module sata_dma (/*AUTOARG*/
    localparam C_HW_CRC = C_FAMILY == "virtex5" ? 1 : 0;
    txll #(.C_FAMILY(C_FAMILY))
    txll(/*AUTOINST*/
-	     // Outputs
-	     .trn_td			(trn_td[31:0]),
-	     .trn_teof_n		(trn_teof_n),
-	     .trn_tsof_n		(trn_tsof_n),
-	     .trn_tsrc_dsc_n		(trn_tsrc_dsc_n),
-	     .trn_tsrc_rdy_n		(trn_tsrc_rdy_n),
-	     .txfifo_almost_full	(txfifo_almost_full),
-	     .txfifo_count		(txfifo_count[9:0]),
-	     .txfifo_eof_poped		(txfifo_eof_poped),
-	     // Inputs
-	     .sys_clk			(sys_clk),
-	     .sys_rst			(sys_rst),
-	     .phyclk			(phyclk),
-	     .phyreset			(phyreset),
-	     .trn_tdst_dsc_n		(trn_tdst_dsc_n),
-	     .trn_tdst_rdy_n		(trn_tdst_rdy_n),
-	     .txfifo_clk		(txfifo_clk),
-	     .txfifo_data		(txfifo_data[31:0]),
-	     .txfifo_eof		(txfifo_eof),
-	     .txfifo_sof		(txfifo_sof),
-	     .txfifo_wr_en		(txfifo_wr_en));
+	// Outputs
+	.trn_td				(trn_td[31:0]),
+	.trn_teof_n			(trn_teof_n),
+	.trn_tsof_n			(trn_tsof_n),
+	.trn_tsrc_dsc_n			(trn_tsrc_dsc_n),
+	.trn_tsrc_rdy_n			(trn_tsrc_rdy_n),
+	.txfifo_almost_full		(txfifo_almost_full),
+	.txfifo_count			(txfifo_count[9:0]),
+	.txfifo_eof_poped		(txfifo_eof_poped),
+	// Inputs
+	.sys_clk			(sys_clk),
+	.sys_rst			(sys_rst),
+	.phyclk				(phyclk),
+	.phyreset			(phyreset),
+	.trn_tdst_dsc_n			(trn_tdst_dsc_n),
+	.trn_tdst_rdy_n			(trn_tdst_rdy_n),
+	.txfifo_clk			(txfifo_clk),
+	.txfifo_data			(txfifo_data[31:0]),
+	.txfifo_eof			(txfifo_eof),
+	.txfifo_sof			(txfifo_sof),
+	.txfifo_wr_en			(txfifo_wr_en));
    rxll #(.C_FAMILY(C_FAMILY))
    rxll(/*AUTOINST*/
-	     // Outputs
-	     .rxfifo_almost_empty	(rxfifo_almost_empty),
-	     .rxfifo_data		(rxfifo_data[31:0]),
-	     .rxfifo_empty		(rxfifo_empty),
-	     .rxfifo_eof		(rxfifo_eof),
-	     .rxfifo_eof_rdy		(rxfifo_eof_rdy),
-	     .rxfifo_fis_hdr		(rxfifo_fis_hdr[11:0]),
-	     .rxfifo_rd_count		(rxfifo_rd_count[9:0]),
-	     .rxfifo_sof		(rxfifo_sof),
-	     .rxfis_rdata		(rxfis_rdata[31:0]),
-	     .trn_rdst_dsc_n		(trn_rdst_dsc_n),
-	     .trn_rdst_rdy_n		(trn_rdst_rdy_n),
-	     // Inputs
-	     .phyclk			(phyclk),
-	     .phyreset			(phyreset),
-	     .rxfifo_clk		(rxfifo_clk),
-	     .rxfifo_rd_en		(rxfifo_rd_en),
-	     .rxfis_raddr		(rxfis_raddr[2:0]),
-	     .sys_clk			(sys_clk),
-	     .sys_rst			(sys_rst),
-	     .trn_rd			(trn_rd[31:0]),
-	     .trn_reof_n		(trn_reof_n),
-	     .trn_rsof_n		(trn_rsof_n),
-	     .trn_rsrc_dsc_n		(trn_rsrc_dsc_n),
-	     .trn_rsrc_rdy_n		(trn_rsrc_rdy_n));
+	// Outputs
+	.rxfifo_almost_empty		(rxfifo_almost_empty),
+	.rxfifo_data			(rxfifo_data[31:0]),
+	.rxfifo_empty			(rxfifo_empty),
+	.rxfifo_eof			(rxfifo_eof),
+	.rxfifo_eof_rdy			(rxfifo_eof_rdy),
+	.rxfifo_fis_hdr			(rxfifo_fis_hdr[11:0]),
+	.rxfifo_rd_count		(rxfifo_rd_count[9:0]),
+	.rxfifo_sof			(rxfifo_sof),
+	.rxfis_rdata			(rxfis_rdata[31:0]),
+	.trn_rdst_dsc_n			(trn_rdst_dsc_n),
+	.trn_rdst_rdy_n			(trn_rdst_rdy_n),
+	// Inputs
+	.phyclk				(phyclk),
+	.phyreset			(phyreset),
+	.rxfifo_clk			(rxfifo_clk),
+	.rxfifo_rd_en			(rxfifo_rd_en),
+	.rxfis_raddr			(rxfis_raddr[2:0]),
+	.sys_clk			(sys_clk),
+	.sys_rst			(sys_rst),
+	.trn_rd				(trn_rd[31:0]),
+	.trn_reof_n			(trn_reof_n),
+	.trn_rsof_n			(trn_rsof_n),
+	.trn_rsrc_dsc_n			(trn_rsrc_dsc_n),
+	.trn_rsrc_rdy_n			(trn_rsrc_rdy_n));
    dcr_if #(/*AUTOINSTPARAM*/
 	    // Parameters
 	    .C_PORT			(C_PORT),
@@ -288,6 +291,9 @@ module sata_dma (/*AUTOARG*/
 		  .rx_cs2dbg		(rx_cs2dbg[127:0]),
 		  .tx_cs2dbg		(tx_cs2dbg[127:0]),
 		  .oob2dbg		(oob2dbg[127:0]),
+		  .gtp_dbg		(gtp_dbg[127:0]),
+		  .oob_dbg		(oob_dbg[127:0]),
+		  .txusrclk20		(txusrclk20),
 		  .error_code		(error_code[3:0]),
 		  .rxfifo_fis_hdr	(rxfifo_fis_hdr[11:0]),
 		  .dma_ack		(dma_ack),

@@ -47,7 +47,7 @@
 module gtp_oob (/*AUTOARG*/
    // Outputs
    CommInit, link_up, txcomstart, txcomtype, txelecidle, rxreset,
-   txdata, txdatak, txdatak_pop, trig_o,
+   txdata, txdatak, txdatak_pop, trig_o, oob_dbg,
    // Inouts
    CONTROL,
    // Inputs
@@ -56,7 +56,9 @@ module gtp_oob (/*AUTOARG*/
    rxdata, rxdatak, gtx_tune, trig_i
    );
    parameter C_CHIPSCOPE = 0;
-   
+
+`define SIM = 1;
+      
    input sys_clk;		// tile0_txusrclk20
    input sys_rst;		
    input clk_pi_enable;
@@ -94,6 +96,9 @@ module gtp_oob (/*AUTOARG*/
    inout [35:0] CONTROL;
    output 	trig_o;
    input 	trig_i;
+
+   output [127:0] oob_dbg;
+   
    /**********************************************************************/
    /*AUTOREG*/
    // Beginning of automatic regs (for this module's undeclared outputs)
@@ -225,8 +230,15 @@ module gtp_oob (/*AUTOARG*/
    assign await_cominit_timeout = count == 16'hffff;
    assign await_comwake_timeout = count == 16'hffff;
    assign await_align_timeout   = count == 16'hffff; // 873.8 us, 32768 GEN1 dword
+
+`ifdef SIM
+   assign await_comreset_done   = count == 16'h0088 | rxstatus[0];
+   assign await_comwake_done    = count == 16'h0088 | rxstatus[0];
+`else
    assign await_comreset_done   = count == 16'h0288 | rxstatus[0];
    assign await_comwake_done    = count == 16'h0288 | rxstatus[0];
+`endif
+
    assign align_det = (((rxdatak[0] && rxdata == 32'h7B4A_4ABC) |
 		        (rxdatak[1] && rxdata == 32'h4A4A_BC7B) |
 		        (rxdatak[2] && rxdata == 32'h4ABC_7B4A) |
@@ -375,6 +387,34 @@ module gtp_oob (/*AUTOARG*/
 
    wire [127:0] dbg;
    wire		trig_o;
+
+
+   assign dbg[127] = trig_i;
+   assign dbg[126] = 1'b0;
+   assign dbg[31:0]= rxdata;
+   assign dbg[63:32]=txdata;
+   assign dbg[71:64]=rxdatak;
+   assign dbg[79:72]=txdatak;
+   assign dbg[87:80]=state;
+   assign dbg[103:88]=count;
+   assign dbg[111:104]=rxstatus;
+   assign dbg[112]  = txcomstart;
+   assign dbg[113]  = txcomtype;
+   assign dbg[114]  = txelecidle;
+   assign dbg[115]  = phy_ready;
+   assign dbg[116]  = rxelecidle;
+   assign dbg[117]  = clk_pi_enable;
+   assign dbg[118]  = tx_sync_done;
+   assign dbg[119]  = tree_nonalign_prim_det;
+   assign dbg[120]  = rxbyteisaligned;
+   assign dbg[121]  = link_up;
+   assign dbg[122]  = rxreset;
+   assign dbg[123]  = align_det;
+   assign dbg[124] = sys_rst;
+   assign dbg[125] = plllkdet;
+
+   assign oob_dbg = dbg;
+      
    generate if (C_CHIPSCOPE == 1)
      begin
 	chipscope_ila_128x1
@@ -382,29 +422,6 @@ module gtp_oob (/*AUTOARG*/
 		.CONTROL  (CONTROL[35:0]),
 		.CLK      (sys_clk),
 		.TRIG0    (dbg));
-	assign dbg[127] = trig_i;
-	assign dbg[126] = sys_rst;
-	assign dbg[125] = plllkdet;
-	assign dbg[31:0]= rxdata;
-	assign dbg[63:32]=txdata;
-	assign dbg[71:64]=rxdatak;
-	assign dbg[79:72]=txdatak;
-	assign dbg[87:80]=state;
-	assign dbg[103:88]=count;
-	assign dbg[111:104]=rxstatus;
-	assign dbg[112]  = txcomstart;
-	assign dbg[113]  = txcomtype;
-	assign dbg[114]  = txelecidle;
-	assign dbg[115]  = phy_ready;
-	assign dbg[116]  = rxelecidle;
-	assign dbg[117]  = StartComm_sync;
-	assign dbg[118]  = tx_sync_done;
-	assign dbg[119]  = tree_nonalign_prim_det;
-	assign dbg[120]  = rxbyteisaligned;
-	assign dbg[121]  = link_up;
-	assign dbg[122]  = rxreset;
-	assign dbg[123]  = align_det;
-	assign dbg[124]  = 1'b0;
      end
    endgenerate   
    /* synthesis attribute keep of txdata_o  is "true" */

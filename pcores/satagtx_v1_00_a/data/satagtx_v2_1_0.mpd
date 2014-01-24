@@ -87,4 +87,7 @@ PORT phyclk     = "", DIR = I
 PORT GTXRESET_IN = "", DIR = I, SIGIS = RST
 PORT sys_clk = "", DIR = I, SIGIS = CLK, ASSIGNMENT = REQUIRE
 
+PORT gtp_dbg = "", DIR = O
+PORT oob_dbg = "", DIR = O
+
 END

@@ -100,6 +100,10 @@ PORT gtx_txdatak3    = gtx_txdatak,    DIR = I, BUS = GTXBUS3, VEC = [3:0]
 PORT gtx_rxdata3     = gtx_rxdata,     DIR = I, BUS = GTXBUS3, VEC = [31:0]
 PORT gtx_rxdatak3    = gtx_rxdatak,    DIR = I, BUS = GTXBUS3, VEC = [3:0]
 
+PORT gtp_dbg = "", DIR = I
+PORT oob_dbg = "", DIR = I
+PORT txusrclk20 = "", DIR = I
+
 # DCR
 BUS_INTERFACE BUS = SDCR, BUS_STD = DCR, BUS_TYPE = SLAVE
 PORT DCR_Clk = "", DIR = I, SIGIS = CLK

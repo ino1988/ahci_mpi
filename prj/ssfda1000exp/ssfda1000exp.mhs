@@ -175,6 +175,9 @@ BEGIN sata
  PORT MPMC_Clk = clk_sys_PLL0_nobuf
  PORT DCR_Clk = DCR_Clk0
  PORT DCR_Rst = DCR_Rst0
+ PORT gtp_dbg =	gtp_dbg
+ PORT oob_dbg =	oob_dbg
+ PORT txusrclk20 = tile0_txusrclk20
 END
 
 BEGIN satagtx
@@ -194,6 +197,8 @@ BEGIN satagtx
  PORT txusrclk0 = tile0_txusrclk0
  PORT txusrclk20 = tile0_txusrclk20
  PORT GTXRESET_IN = sys_periph_reset
+ PORT gtp_dbg = gtp_dbg
+ PORT oob_dbg = oob_dbg 
  PORT RXN0_IN = RXN0_IN
  PORT RXP0_IN = RXP0_IN
  PORT TXN0_OUT = TXN0_OUT

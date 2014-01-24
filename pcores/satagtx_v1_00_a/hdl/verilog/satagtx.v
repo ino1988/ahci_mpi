@@ -52,7 +52,7 @@ module satagtx (/*AUTOARG*/
    oob2dbg0, CommInit0, phyclk0, gtx_txdata0, gtx_txdatak0,
    gtx_rxdata0, gtx_rxdatak0, txdatak_pop1, rxdata1, rxdatak1,
    linkup1, plllock1, oob2dbg1, CommInit1, phyclk1, gtx_txdata1,
-   gtx_txdatak1, gtx_rxdata1, gtx_rxdatak1,
+   gtx_txdatak1, gtx_rxdata1, gtx_rxdatak1, gtp_dbg, oob_dbg,
    // Inputs
    GTXRESET_IN, sys_clk, RXN0_IN, RXP0_IN, RXN1_IN, RXP1_IN, refclk,
    dcm_locked, txusrclk0, txusrclk20, phyclk, phyreset0, txdata0,
@@ -122,7 +122,9 @@ module satagtx (/*AUTOARG*/
    output [3:0] 	gtx_txdatak1;
    output [31:0]        gtx_rxdata1;
    output [3:0] 	gtx_rxdatak1;
- 
+   output [127:0] 	gtp_dbg;		// From sata_gtx_phy of v5_gtp_top.v
+   output [127:0] 	oob_dbg;		// From sata_gtx_phy of v5_gtp_top.v
+   
    /*AUTOWIRE*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
    wire			link_up0;		// From sata_gtx_phy of v5_gtx_top.v, ...
@@ -295,6 +297,8 @@ begin: v5_gtp_top
 		  .gtx_rxdatak1		(gtx_rxdatak1[3:0]),
 		  .oob2dbg0		(oob2dbg0[127:0]),
 		  .oob2dbg1		(oob2dbg1[127:0]),
+		  .gtp_dbg		(gtp_dbg[127:0]),
+		  .oob_dbg		(oob_dbg[127:0]),
 		  // Inputs
 		  .GTXRESET_IN		(GTXRESET_IN),
 		  .RXN0_IN		(RXN0_IN),

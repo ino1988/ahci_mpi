@@ -53,15 +53,16 @@ module dcr_if (/*AUTOARG*/
    // Inputs
    sys_clk, sys_rst, phyclk, address, write, writedata, Trace_FW,
    CommInit, linkup, plllock, cs2dcr_prim, cs2dcr_cnt, link_fsm2dbg,
-   rx_cs2dbg, tx_cs2dbg, oob2dbg, error_code, rxfifo_fis_hdr, dma_ack,
-   rxfifo_irq, cxfifo_irq, rxfis_rdata
+   rx_cs2dbg, tx_cs2dbg, oob2dbg, gtp_dbg, oob_dbg, txusrclk20,
+   error_code, rxfifo_fis_hdr, dma_ack, rxfifo_irq, cxfifo_irq,
+   rxfis_rdata
    );
    parameter C_PORT = 0;
    parameter C_SATA_CHIPSCOPE = 0;
 
    input sys_clk;
    input sys_rst;
-
+   
    input phyclk;
 
    input [5:0] address;
@@ -70,6 +71,7 @@ module dcr_if (/*AUTOARG*/
    output [31:0] readdata;
    output 	 irq;
    input [127:0] Trace_FW;
+   
    /**********************************************************************/
    output 	 StartComm;
    input 	 CommInit;
@@ -87,6 +89,10 @@ module dcr_if (/*AUTOARG*/
    input [127:0] rx_cs2dbg;
    input [127:0] tx_cs2dbg;
    input [127:0] oob2dbg;
+   input [127:0] gtp_dbg;
+   input [127:0] oob_dbg;
+   input 	 txusrclk20;
+   
    /**********************************************************************/   
    input [3:0] 	 error_code;
    input [11:0]  rxfifo_fis_hdr;
@@ -287,7 +293,57 @@ module dcr_if (/*AUTOARG*/
 	  begin
 	     com_tag <= #1 com_tag + 1'b1;
 	  end
-     end // always @ (posedge sys_clk) 
+     end // always @ (posedge sys_clk)
+   
+   wire [35:0] 		CONTROL0;
+   wire [35:0] 		CONTROL1;
+   wire [35:0] 		CONTROL2;
+   wire [127:0] 	TRIG0;
+   wire [127:0] 	TRIG1;
+   wire [127:0] 	TRIG2;   
+   wire                 TRIG_OUT0;
+   wire                 TRIG_OUT1;
+   wire                 TRIG_OUT2;
+   
+   assign TRIG0 = gtp_dbg;
+   assign TRIG1 = oob_dbg;
+   assign TRIG2 = link_fsm2dbg;
+     
+   generate if (C_SATA_CHIPSCOPE == 1)
+     begin
+	chipscope_icon3
+	  icon (/*AUTOINST*/
+		// Inouts
+		.CONTROL0		(CONTROL0[35:0]),
+		.CONTROL1		(CONTROL1[35:0]),
+		.CONTROL2		(CONTROL2[35:0]));
+	chipscope_ila_128x1
+	  ila0 (
+		.TRIG_OUT(TRIG_OUT0),
+		.CONTROL(CONTROL0),
+		.TRIG0({TRIG_OUT2, TRIG_OUT1, TRIG0[125:0]}),
+		.CLK(txusrclk20)
+		);
+	
+	chipscope_ila_128x1
+	  ila1 (
+		.TRIG_OUT(TRIG_OUT1),
+		.CONTROL(CONTROL1),
+		.TRIG0({TRIG_OUT2, TRIG_OUT0, TRIG1[125:0]}),
+		.CLK(txusrclk20)
+		);
+	
+	chipscope_ila_128x1
+	  ila2 (
+		.TRIG_OUT(TRIG_OUT2),
+		.CONTROL(CONTROL2),
+		.TRIG0({TRIG_OUT1, TRIG_OUT0, TRIG2[125:0]}),
+		.CLK(txusrclk20)
+		);
+     end
+   endgenerate
+	
+   
 endmodule
 // 
 // dcr_if.v ends here

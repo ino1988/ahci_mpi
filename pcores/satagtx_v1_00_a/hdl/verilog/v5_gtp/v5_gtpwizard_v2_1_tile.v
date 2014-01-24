@@ -166,7 +166,9 @@ module V5_GTPWIZARD_V2_1_TILE #
     TXCOMSTART0_IN,
     TXCOMSTART1_IN,
     TXCOMTYPE0_IN,
-    TXCOMTYPE1_IN
+    TXCOMTYPE1_IN,
+
+ gtp_dbg
 
 
 );
@@ -258,7 +260,8 @@ module V5_GTPWIZARD_V2_1_TILE #
     input           TXCOMTYPE0_IN;
     input           TXCOMTYPE1_IN;
 
-
+   output [127:0]   gtp_dbg;
+   
 
 //***************************** Wire Declarations *****************************
 
@@ -821,6 +824,33 @@ module V5_GTPWIZARD_V2_1_TILE #
         .TXCOMTYPE1                     (TXCOMTYPE1_IN)
 
      );
+
+
+   assign gtp_dbg[1:0] = RXCHARISCOMMA0_OUT;
+   assign gtp_dbg[3:2] = RXDISPERR0_OUT;
+   assign gtp_dbg[5:4] = RXNOTINTABLE0_OUT;
+   assign gtp_dbg[7:6] = RXCHARISK0_OUT;
+   assign gtp_dbg[10:8] = RXCLKCORCNT0_OUT;
+   assign gtp_dbg[13:11] = loopback0_i;
+   assign gtp_dbg[14] = RXBYTEISALIGNED0_OUT;
+   assign gtp_dbg[15] = RXENMCOMMAALIGN0_IN;
+   assign gtp_dbg[16] = RXENPCOMMAALIGN0_IN;
+   assign gtp_dbg[32:17] = rxdata0_i;
+   assign gtp_dbg[33] = rxelecidle0_i;
+   assign gtp_dbg[34] = rxelecidlereset0_i;
+   assign gtp_dbg[36:35] = RXEQMIX0_IN;
+   assign gtp_dbg[40:37] = RXEQPOLE0_IN;
+   assign gtp_dbg[43:41] = RXSTATUS0_OUT;
+   assign gtp_dbg[44] = PLLLKDET_OUT;
+   assign gtp_dbg[45] = TXENPMAPHASEALIGN_IN;
+   assign gtp_dbg[46] = TXPMASETPHASE_IN;
+   assign gtp_dbg[48:47] = TXCHARISK0_IN;
+   assign gtp_dbg[64:49] = txdata0_i;
+   assign gtp_dbg[67:65] = TXDIFFCTRL0_IN;
+   assign gtp_dbg[68] = TXELECIDLE0_IN;
+   assign gtp_dbg[69] = TXCOMSTART0_IN;
+   assign gtp_dbg[70] = TXCOMTYPE0_IN;
+  
      
 endmodule
 
